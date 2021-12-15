@@ -32,7 +32,7 @@ if (currentTime > 17) {
 if (currentTime < 9) {
   let x = currentTime + 12;
   console.info('Smaller', x);
-  if (x > 17) x -= 4;
+  if (x >= 17) x -= 4;
   endCurrrentTime = x;
 }
 
@@ -42,9 +42,10 @@ console.log('[END TIME]=>', endCurrrentTime);
 
 const updatedTimeSlot =
   endCurrrentTime === 0 ? timeslot : moment(timeslot).hour(endCurrrentTime);
+
 console.log('[UPDATED]=>', updatedTimeSlot);
 
-const timeslotStart = moment(timeslot)
+const timeslotStart = moment(updatedTimeSlot)
   .add(remainder, 'm')
   .startOf('minute')
   .toISOString();
