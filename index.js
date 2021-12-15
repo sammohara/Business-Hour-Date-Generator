@@ -10,12 +10,11 @@ const fakeDOB = (min, max) => {
   return faker.date.between(minAge, maxAge).toISOString();
 };
 
-const dateOfBirth = fakeDOB(17, 100);
 // ====================== End Of Function ==========================
 const businessHourHack = (hour) => {
   // This feature is not supposed to be 'efficient' or 'correct'
   // The goal is to simply provide more accurate fake data
-  // within the business hours of 9 - 6 PM.
+  // within the business hours of 9 - 5/6 PM.
   let hourSlot = 0;
   if (hour > 17) {
     let x = hour - 12;
@@ -37,7 +36,7 @@ const fakeAppointmentTimeSlot = (min, max, remainder) => {
   const maxDate = moment().add(max, 'd').utc().toISOString();
   const proposedTimeSlot = moment(faker.date.between(minDate, maxDate));
   // 1. Verify generated Faker Data
-  const proposedTimeStatic = proposedTimeSlot.utc().toISOString();
+  // const proposedTimeStatic = proposedTimeSlot.utc().toISOString();
   // 2. Remainder is 30 min intervals for appointments.
   const roundUpMins = remainder - moment(proposedTimeSlot.minute() % remainder);
   // 3. Proposed Hour - Business Hours. (Default = 9 - 5)
@@ -51,22 +50,29 @@ const fakeAppointmentTimeSlot = (min, max, remainder) => {
   const startTime = moment(validatedTimeSlot)
     .add(roundUpMins, 'm')
     .startOf('minute')
+    .utc()
     .toISOString();
-  const endTime = moment(startTime).add(30, 'm').toISOString();
-  console.log('Result: ', {
-    minDate,
-    maxDate,
-    proposedTimeSlot,
-    proposedTimeStatic,
-    roundUpMins,
-    proposedHour,
-    slotTime,
-    startTime,
-    endTime,
-  });
-  return { startTime, endTime };
+  const endTime = moment(startTime).add(30, 'm').utc().toISOString();
+
+  // Get Day of Week and Year
+  const day = moment(startTime).day();
+  const week = moment(startTime).isoWeek();
+  // console.log('fakeAppointmentTimeSlot: ', {
+  //   minDate,
+  //   maxDate,
+  //   proposedTimeSlot,
+  //   proposedTimeStatic,
+  //   roundUpMins,
+  //   proposedHour,
+  //   slotTime,
+  //   startTime,
+  //   endTime,
+  // });
+  return { day, week, startTime, endTime };
 };
 
+// Call functions
+const dateOfBirth = fakeDOB(17, 100);
 const timeSlot = fakeAppointmentTimeSlot(6, 1, 30);
 console.log(timeSlot);
 
@@ -81,11 +87,6 @@ const appDiv = document.getElementById('app');
 appDiv.innerHTML = `
   <h2>DOB: ${dateOfBirth}</h2>
   <hr/>
-  <h2>Saved:{savedTimeslot}</h2>
-  <p>
-    Remainder {remainder}.
-    <hr />
-  </p>  
   <p>
     <br/> Start: ${dateObject.startTime}
     <br/> End:   .${dateObject.endTime}
