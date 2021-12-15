@@ -25,13 +25,12 @@ const businessHourHack = (hour) => {
 
   if (hour < 9) {
     let x = hour + 12;
-    if (x >= 17) x-= 4;
+    if (x >= 17) x -= 4;
     hourSlot = x;
   }
 
   return hourSlot;
-}
-
+};
 
 const fakeAppointmentTimeSlot = (min, max, remainder) => {
   const minDate = moment().add(min, 'M').utc().toISOString();
@@ -39,32 +38,20 @@ const fakeAppointmentTimeSlot = (min, max, remainder) => {
   const proposedTimeSlot = moment(faker.date.between(minDate, maxDate));
   // 1. Verify generated Faker Data
   const proposedTimeStatic = proposedTimeSlot.utc().toISOString();
-  console.info('ProposedTimeSlot => ', proposedTimeStatic);
   // 2. Remainder is 30 min intervals for appointments.
   const roundUpMins = remainder - moment(proposedTimeSlot.minute() % remainder);
   // 3. Proposed Hour - Business Hours. (Default = 9 - 5)
   const proposedHour = parseInt(moment(proposedTimeSlot).utc().format('HH'));
   // 4. Validate Proposed Time
-  let slotTime = 0;
-  if (proposedHour > 17) {
-    let x = proposedHour - 12;
-    if (x < 9) x += 4;
-    slotTime = x;
-  }
-
-  if (proposedHour < 9) {
-    let x = proposedHour + 12;
-    if (x >= 17) x-= 4;
-    slotTime = x;
-  }
-  console.log('Slot Time => ', slotTime);
+  const slotTime = businessHourHack(proposedHour);
   // 5. Change ProposedTime to alternate time within Business Hours
-  const validatedTimeSlot = slotTime === 0 ? proposedTimeSlot : moment(proposedTimeSlot).hour(slotTime);
+  const validatedTimeSlot =
+    slotTime === 0 ? proposedTimeSlot : moment(proposedTimeSlot).hour(slotTime);
   // 6. Prepare Timie slot object for Appointment/Calendar
   const startTime = moment(validatedTimeSlot)
-  .add(roundUpMins, 'm')
-  .startOf('minute')
-  .toISOString();
+    .add(roundUpMins, 'm')
+    .startOf('minute')
+    .toISOString();
   const endTime = moment(startTime).add(30, 'm').toISOString();
   console.log('Result: ', {
     minDate,
@@ -75,53 +62,13 @@ const fakeAppointmentTimeSlot = (min, max, remainder) => {
     proposedHour,
     slotTime,
     startTime,
-    endTime
+    endTime,
   });
-  return { startTime, endTime }
-}
+  return { startTime, endTime };
+};
 
-const timeSlot = fakeAppointmentTimeSlot(6,1, 30);
-console.log(timeSlot); 
-// // Fake Timeslots
-// const minFutureDate = moment().add(6, 'M').utc().toISOString();
-// const maxFutureDate = moment().add(1, 'd').utc().toISOString();
-// // Calcualte to nearest min
-// const timeslot = moment(faker.date.between(minFutureDate, maxFutureDate));
-// const savedTimeslot = timeslot.utc().toISOString();
-// const remainder = 30 - moment(timeslot.minute() % 30);
-
-// const currentTime = parseInt(moment(timeslot).utc().format('HH'));
-// console.log('currentTime: ', currentTime);
-
-// // Business Hours Validation.
-// let endCurrrentTime = 0;
-// if (currentTime > 17) {
-//   let x = currentTime - 12;
-//   console.info('Greater', x);
-//   if (x < 9) x += 4;
-//   endCurrrentTime = x;
-// }
-
-// if (currentTime < 9) {
-//   let x = currentTime + 12;
-//   console.info('Smaller', x);
-//   if (x >= 17) x -= 4;
-//   endCurrrentTime = x;
-// }
-
-// console.log('[END TIME]=>', endCurrrentTime);
-
-// const updatedTimeSlot =
-//   endCurrrentTime === 0 ? timeslot : moment(timeslot).hour(endCurrrentTime);
-
-// console.log('[UPDATED]=>', updatedTimeSlot);
-
-// const timeslotStart = moment(updatedTimeSlot)
-//   .add(remainder, 'm')
-//   .startOf('minute')
-//   .toISOString();
-
-// const timeslotEnd = moment(timeslotStart).add(30, 'm').toISOString();
+const timeSlot = fakeAppointmentTimeSlot(6, 1, 30);
+console.log(timeSlot);
 
 // Final Object
 const dateObject = {
