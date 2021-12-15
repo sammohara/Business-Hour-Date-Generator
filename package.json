@@ -1,0 +1,9 @@
+{
+  "name": "js",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "faker": "^5.5.3",
+    "moment": "^2.29.1"
+  }
+}
